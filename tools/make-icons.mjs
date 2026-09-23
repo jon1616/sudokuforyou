@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
-  Disegna le icone dell'app (griglia con un cuore al centro) e le salva in icons/.
+  Disegna le icone dell'app (griglia con una faccina sorridente) e le salva in icons/.
 
       node tools/make-icons.mjs
 
@@ -21,7 +21,27 @@ const BG = hex("#7a6bd1");
 const PAPER = hex("#fffdf9");
 const THICK = hex("#5b5468");
 const THIN = hex("#ddd4ec");
-const HEART = hex("#e5698f");
+const FACE = hex("#2f2a3b");
+const WHITE = hex("#ffffff");
+const CHEEK = hex("#f5a3bc");
+
+const inEllipse = (x, y, cx, cy, rx, ry) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+
+// Faccina sorridente sopra la griglia (coordinate 0..1 della griglia intera)
+function faceAt(u, v) {
+  for (const cx of [0.385, 0.615]) {
+    if (inEllipse(u, v, cx + 0.013, 0.45, 0.014, 0.014)) return WHITE; // riflesso nell'occhio
+    if (inEllipse(u, v, cx, 0.47, 0.042, 0.058)) return FACE;
+  }
+  // Sorriso: arco spesso con estremità arrotondate
+  const cx = 0.5, cy = 0.55, R = 0.085, W = 0.017;
+  const a0 = (25 * Math.PI) / 180, a1 = (155 * Math.PI) / 180;
+  const d = Math.hypot(u - cx, v - cy), ang = Math.atan2(v - cy, u - cx);
+  if (Math.abs(d - R) <= W && ang >= a0 && ang <= a1) return FACE;
+  for (const a of [a0, a1]) if (Math.hypot(u - (cx + R * Math.cos(a)), v - (cy + R * Math.sin(a))) <= W) return FACE;
+  for (const cx2 of [0.29, 0.71]) if (inEllipse(u, v, cx2, 0.59, 0.05, 0.03)) return CHEEK;
+  return null;
+}
 
 function inRoundRect(x, y, x0, y0, x1, y1, r) {
   if (x < x0 || x > x1 || y < y0 || y > y1) return false;
@@ -38,9 +58,8 @@ function colorAt(x, y, maskable) {
   const b0 = 0.17, b1 = 0.83, size = b1 - b0;
   if (!inRoundRect(u, v, b0, b0, b1, b1, 0.07)) return BG;
 
-  // Cuore al centro
-  const hx = (u - 0.5) / 0.082, hy = -(v - 0.515) / 0.082;
-  if ((hx * hx + hy * hy - 1) ** 3 - hx * hx * hy ** 3 <= 0) return HEART;
+  const f = faceAt(u, v);
+  if (f) return f;
 
   // Linee della griglia
   const gx = ((u - b0) / size) * 9, gy = ((v - b0) / size) * 9;
