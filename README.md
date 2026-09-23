@@ -6,7 +6,7 @@ Funziona anche senza connessione.
 
 ## Sul telefono (Android)
 
-Apri il link in Chrome → menu ⋮ → **"Aggiungi a schermata Home"** (o "Installa app").
+Apri **https://jon1616.github.io/sudokuforyou/** in Chrome → menu ⋮ → **"Aggiungi a schermata Home"** (o "Installa app").
 Da quel momento si apre come un'app, a schermo intero, anche offline.
 Gli aggiornamenti arrivano da soli: basta chiudere e riaprire.
 

@@ -4,6 +4,7 @@ Sudoku per telefono, **single player e rilassante**, altamente personalizzabile.
 dell'utente che gioca per rilassarsi, su **Android** (Chrome). Pagina web installabile (PWA),
 vanilla JS senza build, funziona offline, hosting su GitHub Pages.
 Stessa impostazione di CELLCITTINE (`../CELLCITTINE`).
+Online: https://jon1616.github.io/sudokuforyou/ — Repo: jon1616/sudokuforyou (branch `main`).
 
 ## Chi decide cosa
 

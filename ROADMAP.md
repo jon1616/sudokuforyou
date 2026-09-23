@@ -11,7 +11,7 @@ Ogni idea si segna qui prima di farla e si spunta quando è online.
 - [x] Timer con pausa (anche automatica), salvataggio a ogni mossa, "Continua"
 - [x] Lampo quando si completa una riga/colonna/riquadro, onda finale, statistiche per livello
 - [x] Installabile (PWA), funziona offline, icona
-- [ ] Pubblicazione su GitHub Pages
+- [x] Pubblicazione su GitHub Pages: https://jon1616.github.io/sudokuforyou/
 
 ## v0.2 — Personalizzazione
 - [ ] Schermata Impostazioni
