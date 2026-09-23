@@ -1,0 +1,242 @@
+/* Carattere, colori, schermata iniziale, finestre. La griglia è in game.css. */
+
+@font-face {
+  font-family: "Fredoka";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("../fonts/fredoka-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fredoka";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("../fonts/fredoka-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Colori: carta calda e lavanda. Il tema scuro segue il telefono. */
+:root {
+  --bg: #f6f1ea;
+  --paper: #fffdf9;
+  --ink: #2f2a3b;
+  --muted: #8a8398;
+  --accent: #7a6bd1;
+  --accent-ink: #ffffff;
+  --accent-soft: #ece8fb;
+  --user: #5a4fc2;
+  --line: #e6ded2;
+  --line-strong: #5b5468;
+  --area: #f4effc;
+  --same: #ddd4fb;
+  --sel: #c7b9fa;
+  --err: #d9557a;
+  --err-bg: #fbe3ea;
+  --good: #5fb58a;
+  --shadow: 0 2px 10px rgba(60, 45, 90, 0.08);
+  --radius: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1a24;
+    --paper: #25222f;
+    --ink: #ece8f4;
+    --muted: #9a93a8;
+    --accent: #a596f2;
+    --accent-ink: #1c1a24;
+    --accent-soft: #332e4a;
+    --user: #b9adff;
+    --line: #3a3647;
+    --line-strong: #8b84a0;
+    --area: #2c2840;
+    --same: #413a66;
+    --sel: #5a4fa6;
+    --err: #ff8aa6;
+    --err-bg: #4a2533;
+    --good: #7fd3a8;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Fredoka", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+#app {
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+button:disabled { cursor: default; }
+
+.icon { width: 24px; height: 24px; display: block; }
+
+/* ---------- Schermata iniziale ---------- */
+
+.home {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 100dvh;
+}
+
+.home-title {
+  text-align: center;
+  margin: 12px 0 10px;
+}
+.home-title h1 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.05;
+}
+.home-title h1 span { color: var(--accent); }
+.home-title p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: transform 0.12s ease;
+}
+.card:active { transform: scale(0.98); }
+
+.card-continue {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.card-continue .card-sub { color: inherit; opacity: 0.85; }
+
+.card-body { flex: 1; min-width: 0; }
+.card-title { font-size: 19px; font-weight: 600; }
+.card-sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.card-stat { font-size: 13px; color: var(--muted); text-align: right; white-space: nowrap; }
+
+.dots { display: flex; gap: 4px; }
+.dots i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--line);
+}
+.dots i.on { background: var(--accent); }
+
+.section-label {
+  margin: 10px 4px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.version {
+  margin-top: auto;
+  padding-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* ---------- Finestre (conferme, fine partita) ---------- */
+
+.modal-back {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 22, 40, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+  animation: fade 0.2s ease;
+}
+.modal {
+  background: var(--paper);
+  border-radius: 22px;
+  padding: 24px 22px 18px;
+  width: min(360px, 100%);
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: pop 0.25s ease;
+}
+.modal h2 { margin: 0 0 8px; font-size: 26px; font-weight: 600; }
+.modal p { margin: 0 0 18px; color: var(--muted); font-size: 16px; line-height: 1.4; }
+.modal .big { font-size: 44px; line-height: 1; margin-bottom: 8px; }
+.modal-buttons { display: flex; flex-direction: column; gap: 8px; }
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 500;
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn:active { filter: brightness(0.95); }
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { transform: scale(0.9); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- Avviso breve ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(64px + env(safe-area-inset-top));
+  transform: translate(-50%, -12px);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 15px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 60;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
