@@ -25,10 +25,11 @@ Ogni idea si segna qui prima di farla e si spunta quando è online.
 - [x] Vibrazione leggera e suoni delicati (spenti di base)
 - [x] Nome per il saluto in apertura
 
-## v0.3 — Aiuti che insegnano
-- [ ] Suggerimento a tre livelli: "guarda qui" → "tecnica da usare" → spiegazione con le caselle evidenziate
-- [ ] Riempi note automaticamente (pulsante)
-- [ ] Ripeti (oltre ad Annulla)
+## v0.3 — Aiuti che insegnano ✅
+- [x] Aiuto a tre gradini: "dove guardare" → "quale tecnica" → ragionamento con caselle e note evidenziate, poi Applica
+- [x] Spiegazioni per tutte le tecniche del motore (cifra obbligata, ultima possibilità, candidati bloccati, coppie/triplette, X-Wing, XY-Wing)
+- [x] Impostazione: aiuto "un passo alla volta" o "svela subito"
+- [x] Pulsante Riempi note, pulsante Ripeti (entrambi nascondibili)
 
 ## v0.4 — Ogni giorno
 - [ ] Sudoku del giorno (stesso schema per data) e serie di giorni consecutivi

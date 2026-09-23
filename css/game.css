@@ -152,9 +152,10 @@
   gap: 3px;
   padding: 6px 0 4px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--muted);
   position: relative;
+  white-space: nowrap;
 }
 .tool .icon { width: 26px; height: 26px; color: var(--ink); }
 .tool:active { background: var(--accent-soft); }
@@ -216,3 +217,33 @@
   .num { height: 50px; font-size: 26px; }
   .board { --size: min(calc(100vw - 20px), calc(100dvh - 270px), 540px); }
 }
+
+/* ---------- Aiuto a gradini ---------- */
+
+.controls { display: flex; flex-direction: column; gap: 10px; }
+
+.hint-panel {
+  background: var(--paper);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: pop 0.2s ease;
+}
+.hint-dots { display: flex; gap: 5px; }
+.hint-dots i { width: 22px; height: 5px; border-radius: 3px; background: var(--line); }
+.hint-dots i.on { background: var(--accent); }
+.hint-text { font-size: 16px; line-height: 1.4; }
+.hint-text b { color: var(--user); font-weight: 600; }
+.hint-buttons { display: flex; gap: 8px; }
+.hint-buttons .btn { width: auto; flex: 1; padding: 11px 12px; font-size: 16px; }
+.hint-buttons .btn-primary { flex: 1.6; }
+
+/* Segni dell'aiuto sulla griglia (vincono sulle evidenziazioni normali) */
+.cell.h-area { background: var(--area); }
+.cell.h-cause { background: var(--same); color: var(--user); }
+.cell.h-elim { background: var(--err-bg); }
+.cell.h-focus { background: var(--sel); box-shadow: inset 0 0 0 2px var(--accent); }
+.cell .notes span.x { color: var(--err); text-decoration: line-through; font-weight: 600; }

@@ -24,6 +24,9 @@ export const DEFAULTS = {
   errors: "conflitti",   // mai | conflitti | subito
   autoNotes: true,       // toglie le note quando si inserisce una cifra
   showHint: true,        // pulsante Aiuto
+  hintStyle: "gradini",  // gradini (dove guardare → tecnica → spiegazione) | svela (mette subito una cifra)
+  showRedo: true,        // pulsante Ripeti
+  showFill: true,        // pulsante Riempi note
   // Gioco
   inputMode: "cella",    // cella (prima la casella) | cifra (prima la cifra)
   showTimer: true,
@@ -242,12 +245,16 @@ function sheetHTML() {
         ${toggle("hlNotes", "Evidenzia le note uguali")}
         ${toggle("autoNotes", "Togli le note in automatico", "Quando metti una cifra, sparisce dalle note vicine")}
         ${toggle("showHint", "Pulsante Aiuto")}
+        ${settings.showHint ? block("Come aiuta", seg("hintStyle", [["gradini", "Un passo alla volta"], ["svela", "Svela subito"]]),
+          settings.hintStyle === "gradini" ? "Prima dove guardare, poi la tecnica, poi il ragionamento completo" : "Mette subito la cifra più facile da trovare") : ""}
       </div>
 
       <div class="section-label">Gioco</div>
       <div class="group">
         ${block("Come inserire le cifre", seg("inputMode", [["cella", "Prima la casella"], ["cifra", "Prima la cifra"]]),
           settings.inputMode === "cifra" ? "Scegli una cifra dal tastierino, poi tocca le caselle dove metterla" : "Tocca una casella, poi la cifra")}
+        ${toggle("showRedo", "Pulsante Ripeti", "Rifà una mossa annullata")}
+        ${toggle("showFill", "Pulsante Riempi note", "Scrive in ogni casella tutte le cifre possibili")}
         ${toggle("showTimer", "Mostra il tempo")}
         ${toggle("showCounts", "Quante ne mancano", "Il numerino sotto ogni cifra del tastierino")}
         ${toggle("dimDone", "Sbiadisci le cifre completate")}

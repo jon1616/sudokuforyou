@@ -159,7 +159,7 @@ function lockedCandidates(g, cand) {
       for (const [line, key] of [[ROW, 0], [COL, 9]]) {
         if (cells.every((i) => line[i] === line[cells[0]])) {
           const elim = UNITS[key + line[cells[0]]].filter((i) => BOX[i] !== bx - 18 && !g[i] && cand[i] & b).map((i) => [i, b]);
-          if (elim.length) return { tech: "pointing", elim, digit: d, unit: bx };
+          if (elim.length) return { tech: "pointing", elim, digit: d, unit: bx, cells, line: key + line[cells[0]] };
         }
       }
     }
@@ -171,7 +171,7 @@ function lockedCandidates(g, cand) {
       const cells = UNITS[u].filter((i) => !g[i] && cand[i] & b);
       if (cells.length < 2 || !cells.every((i) => BOX[i] === BOX[cells[0]])) continue;
       const elim = UNITS[18 + BOX[cells[0]]].filter((i) => !UNITS[u].includes(i) && !g[i] && cand[i] & b).map((i) => [i, b]);
-      if (elim.length) return { tech: "claiming", elim, digit: d, unit: u };
+      if (elim.length) return { tech: "claiming", elim, digit: d, unit: u, cells, box: 18 + BOX[cells[0]] };
     }
   }
   return null;
@@ -220,9 +220,13 @@ function hiddenSubset(n, tech) {
         const where = set.reduce((m, d) => m | pos[d], 0);
         if (POP[where] !== n) return null;
         const keep = set.reduce((m, d) => m | (1 << d), 0);
-        const elim = [];
-        cells.forEach((i, k) => { if (where & (1 << k) && cand[i] & ~keep) elim.push([i, cand[i] & ~keep]); });
-        return elim.length ? { tech, elim, digits: set, unit: u } : null;
+        const elim = [], inside = [];
+        cells.forEach((i, k) => {
+          if (!(where & (1 << k))) return;
+          inside.push(i);
+          if (cand[i] & ~keep) elim.push([i, cand[i] & ~keep]);
+        });
+        return elim.length ? { tech, elim, digits: set, unit: u, cells: inside } : null;
       });
       if (step) return step;
     }
@@ -252,7 +256,8 @@ function xWing(g, cand) {
               if (k !== a && k !== c && !g[i] && cand[i] & b) elim.push([i, b]);
             }
           }
-          if (elim.length) return { tech: "xWing", elim, digit: d };
+          const cells = DIGITS[masks[a]].flatMap((j) => [UNITS[base + a][j], UNITS[base + c][j]]);
+          if (elim.length) return { tech: "xWing", elim, digit: d, cells, lines: [base + a, base + c], cross: DIGITS[masks[a]].map((j) => cross + j) };
         }
       }
     }

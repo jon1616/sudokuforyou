@@ -39,6 +39,8 @@ js/game.js       partita: selezione, cifre, note, annulla, cancella, aiuto, time
 js/settings.js   DEFAULTS, `settings` (sempre aggiornato), setSetting(), onSettingsChange(), tema calcolato da UN colore
                  (themeVars: chiaro/scuro × sfondo carta/neutro/colorato), schermata con anteprima
 js/audio.js      feedback("place"|"note"|"erase"|"unit"|"win"|"hint"): suoni sintetizzati + vibrazione, secondo le impostazioni
+js/hints.js      findHint(G): prossimo passo spiegato in 3 gradini con i segni per la griglia (area/focus/cause/elim/notes)
+                 e l'azione da applicare; solverView() = la griglia come la vede chi gioca (note comprese, se non sbagliate)
 js/sudoku.js     motore puro (usabile da Node): risolutore, candidati, tecniche umane, grade(), generate(), LEVELS
 js/ui.js         modal(), toast(), formatTime()
 js/icons.js      icone SVG
@@ -59,7 +61,8 @@ fonts/                 Fredoka (OFL, licenza in fonts/OFL.txt)
   la stessa struttura servirà per i suggerimenti che spiegano.
 - `LEVELS`: Rilassante e Facile = solo livello 1 (con 38 / 31 cifre minime), Medio = 2, Difficile = 3.
   Schemi che richiedono tecniche oltre quelle note vengono scartati.
-- Per aggiungere una tecnica: funzione `find(g, cand)` + voce in `TECHNIQUES` + controllare `node tools/test-sudoku.mjs`.
+- Per aggiungere una tecnica: funzione `find(g, cand)` che restituisce anche le caselle coinvolte + voce in `TECHNIQUES`
+  + spiegazione in `js/hints.js` (explain) + `node tools/test-sudoku.mjs` (risolve schemi seguendo solo gli aiuti).
 
 ## Versioni e pubblicazione
 

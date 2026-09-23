@@ -5,7 +5,7 @@
   salvata l'ultima volta.
 */
 
-const CACHE_VERSION = "0.2.0"; // tenere allineato a js/version.js
+const CACHE_VERSION = "0.3.0"; // tenere allineato a js/version.js
 const CACHE = `sudokuforyou-${CACHE_VERSION}`;
 
 const PRECACHE = [
@@ -18,6 +18,7 @@ const PRECACHE = [
   "./js/app.js",
   "./js/audio.js",
   "./js/game.js",
+  "./js/hints.js",
   "./js/icons.js",
   "./js/settings.js",
   "./js/storage.js",

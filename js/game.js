@@ -3,12 +3,14 @@
 
   Stato della partita (salvato a ogni mossa in "game"):
     level, puzzle[81], solution[81], values[81] (cifre di chi gioca + quelle di partenza),
-    notes[81] (maschere di bit), elapsed (secondi), hints, history (istantanee per Annulla)
+    notes[81] (maschere di bit), elapsed (secondi), hints,
+    history / future (istantanee per Annulla / Ripeti)
 
   Tutto ciò che è una scelta di gusto passa da `settings` (js/settings.js).
 */
 
-import { ROW, COL, BOX, PEERS, UNITS, LEVELS, candidatesOf, nextStep, applyStep, digitsOf } from "./sudoku.js";
+import { ROW, COL, BOX, PEERS, UNITS, LEVELS, candidatesOf, applyStep } from "./sudoku.js";
+import { findHint, easiestCell } from "./hints.js";
 import { icons } from "./icons.js";
 import * as store from "./storage.js";
 import { modal, toast, formatTime } from "./ui.js";
@@ -22,6 +24,7 @@ let el = {};           // elementi della pagina
 let sel = -1;          // casella selezionata
 let activeDigit = 0;   // cifra scelta nel modo "prima la cifra"
 let noteMode = false;
+let hint_ = null;      // aiuto aperto: { data, level } (data da findHint)
 let paused = false;
 let timerId = 0;
 let lastTick = 0;
@@ -45,6 +48,8 @@ export function mountGame(root, game, { exit, newGame }) {
   activeDigit = 0;
   noteMode = false;
   paused = false;
+  hint_ = null;
+  G.future ||= [];
   const L = LEVELS.find((l) => l.id === G.level);
 
   root.innerHTML = `
@@ -63,13 +68,18 @@ export function mountGame(root, game, { exit, newGame }) {
         </div>
       </div>
       <div class="board-wrap"><div class="board"></div></div>
-      <div class="tools">
-        <button class="tool" data-act="undo">${icons.undo}Annulla</button>
-        <button class="tool" data-act="erase">${icons.erase}Cancella</button>
-        <button class="tool" data-act="notes">${icons.pencil}Note<span class="badge">NO</span></button>
-        <button class="tool" data-act="hint">${icons.bulb}Aiuto</button>
+      <div class="controls">
+        <div class="tools">
+          <button class="tool" data-act="undo">${icons.undo}Annulla</button>
+          <button class="tool" data-act="redo">${icons.redo}Ripeti</button>
+          <button class="tool" data-act="erase">${icons.erase}Cancella</button>
+          <button class="tool" data-act="notes">${icons.pencil}Note<span class="badge">NO</span></button>
+          <button class="tool" data-act="fill">${icons.wand}Riempi</button>
+          <button class="tool" data-act="hint">${icons.bulb}Aiuto</button>
+        </div>
+        <div class="pad"></div>
       </div>
-      <div class="pad"></div>
+      <div class="hint-panel" hidden></div>
     </div>`;
 
   el = {
@@ -81,6 +91,10 @@ export function mountGame(root, game, { exit, newGame }) {
     notesBtn: root.querySelector('[data-act="notes"]'),
     undoBtn: root.querySelector('[data-act="undo"]'),
     hintBtn: root.querySelector('[data-act="hint"]'),
+    redoBtn: root.querySelector('[data-act="redo"]'),
+    fillBtn: root.querySelector('[data-act="fill"]'),
+    controls: root.querySelector(".controls"),
+    hintPanel: root.querySelector(".hint-panel"),
     pauseBtn: root.querySelector('[data-act="pause"]'),
   };
 
@@ -116,11 +130,14 @@ export function mountGame(root, game, { exit, newGame }) {
     else if (act === "pause") setPaused(!paused);
     else if (act === "settings") showSettings();
     else if (act === "undo") undo();
+    else if (act === "redo") redo();
+    else if (act === "fill") fillNotes();
     else if (act === "erase") erase();
     else if (act === "notes") toggleNotes();
     else if (act === "hint") hint();
   });
 
+  el.hintPanel.addEventListener("click", onHintClick);
   document.addEventListener("keydown", onKey);
   document.addEventListener("visibilitychange", onVisibility);
 
@@ -191,6 +208,7 @@ function setPaused(p) {
 
 function tapCell(i) {
   if (paused || G.done) return;
+  closeHint();
   sel = i;
   if (settings.inputMode === "cifra") {
     if (G.puzzle[i]) activeDigit = G.puzzle[i]; // toccare una cifra data la sceglie
@@ -201,6 +219,7 @@ function tapCell(i) {
 
 function tapDigit(d) {
   if (paused || G.done) return;
+  closeHint();
   if (settings.inputMode === "cifra") {
     activeDigit = activeDigit === d ? 0 : d;
     render();
@@ -212,8 +231,10 @@ function tapDigit(d) {
 // ---------- Mosse ----------
 
 function snapshot() {
+  closeHint();
   G.history.push({ v: G.values.slice(), n: G.notes.slice() });
   if (G.history.length > HISTORY_MAX) G.history.shift();
+  G.future = []; // una mossa nuova cancella ciò che si poteva ripetere
 }
 
 function input(d) {
@@ -250,10 +271,34 @@ function erase() {
 
 function undo() {
   if (paused || G.done || !G.history.length) return;
+  closeHint();
+  G.future.push({ v: G.values.slice(), n: G.notes.slice() });
   const h = G.history.pop();
   G.values = h.v;
   G.notes = h.n;
   feedback("erase");
+  afterMove();
+}
+
+function redo() {
+  if (paused || G.done || !G.future.length) return;
+  closeHint();
+  G.history.push({ v: G.values.slice(), n: G.notes.slice() });
+  const h = G.future.pop();
+  G.values = h.v;
+  G.notes = h.n;
+  feedback("place");
+  afterMove();
+}
+
+// Scrive in ogni casella vuota tutte le cifre possibili
+function fillNotes() {
+  if (paused || G.done) return;
+  snapshot();
+  const cand = candidatesOf(G.values);
+  for (let i = 0; i < 81; i++) if (!G.values[i]) G.notes[i] = cand[i];
+  feedback("note");
+  toast("Note complete");
   afterMove();
 }
 
@@ -262,10 +307,24 @@ function toggleNotes() {
   render();
 }
 
+// ---------- Aiuto ----------
+
 function hint() {
   if (paused || G.done) return;
-  // Prima di tutto: una cifra sbagliata va segnalata (senza toglierla)
-  const wrong = G.values.findIndex((v, i) => v && v !== G.solution[i]);
+  if (hint_) return closeHint();
+  if (settings.hintStyle === "svela") return revealEasiest();
+  const data = findHint(G);
+  if (!data) return;
+  G.hints = (G.hints || 0) + 1;
+  persist();
+  feedback("hint");
+  hint_ = { data, level: 0 };
+  showHint();
+}
+
+// Aiuto "svela subito": segnala una cifra sbagliata oppure mette la casella più facile
+function revealEasiest() {
+  const wrong = G.values.findIndex((v, i) => v && !G.puzzle[i] && v !== G.solution[i]);
   if (wrong >= 0) {
     sel = wrong;
     render();
@@ -274,31 +333,79 @@ function hint() {
     toast("Questa cifra non è quella giusta");
     return;
   }
-  // Altrimenti: la casella che si può trovare più facilmente adesso
-  const g = G.values.slice();
-  const cand = candidatesOf(g);
-  let target = -1;
-  for (let guard = 0; guard < 200 && target < 0; guard++) {
-    const step = nextStep(g, cand);
-    if (!step) break;
-    if (step.place) target = step.place[0];
-    else applyStep(g, cand, step);
-  }
-  if (target < 0) {
-    // Ripiego: la casella vuota con meno possibilità
-    let best = 10;
-    const c0 = candidatesOf(G.values);
-    G.values.forEach((v, i) => { if (!v && digitsOf(c0[i]).length < best) { best = digitsOf(c0[i]).length; target = i; } });
-  }
+  const target = easiestCell(G);
   if (target < 0) return;
-  snapshot();
-  G.values[target] = G.solution[target];
-  G.notes[target] = 0;
-  if (settings.autoNotes) for (const p of PEERS[target]) G.notes[p] &= ~(1 << G.solution[target]);
   G.hints = (G.hints || 0) + 1;
-  sel = target;
-  if (!flashCompleted(target)) feedback("hint");
+  placeHint(target, G.solution[target]);
+}
+
+function placeHint(i, d) {
+  snapshot();
+  G.values[i] = d;
+  G.notes[i] = 0;
+  if (settings.autoNotes) for (const p of PEERS[i]) G.notes[p] &= ~(1 << d);
+  sel = i;
+  if (!flashCompleted(i)) feedback("hint");
   afterMove();
+}
+
+function showHint() {
+  const { data, level } = hint_;
+  const last = level >= data.levels.length - 1;
+  const dots = data.levels.length > 1
+    ? `<div class="hint-dots">${data.levels.map((_, k) => `<i class="${k <= level ? "on" : ""}"></i>`).join("")}</div>`
+    : "";
+  el.hintPanel.innerHTML = `
+    ${dots}
+    <div class="hint-text">${data.levels[level].text}</div>
+    <div class="hint-buttons">
+      <button class="btn" data-h="close">Chiudi</button>
+      ${last
+        ? `<button class="btn btn-primary" data-h="apply">${data.apply.label}</button>`
+        : `<button class="btn btn-primary" data-h="more">${level === 0 ? "Dimmi di più" : "Spiegami"}</button>`}
+    </div>`;
+  el.hintPanel.hidden = false;
+  el.controls.hidden = true;
+  render();
+}
+
+function onHintClick(ev) {
+  const h = ev.target.closest("[data-h]")?.dataset.h;
+  if (!hint_) return;
+  if (h === "close") closeHint();
+  else if (h === "more") { hint_.level++; showHint(); }
+  else if (h === "apply") applyHint();
+}
+
+function closeHint() {
+  if (!hint_) return;
+  hint_ = null;
+  el.hintPanel.hidden = true;
+  el.controls.hidden = false;
+  render();
+}
+
+function applyHint() {
+  const a = hint_.data.apply;
+  if (a.kind === "place") return placeHint(a.cell, a.digit);
+  if (a.kind === "clear") {
+    snapshot();
+    G.values[a.cell] = 0;
+    sel = a.cell;
+    feedback("erase");
+    return afterMove();
+  }
+  if (a.kind === "notes") {
+    // Le note diventano quelle del ragionamento (completate dove mancavano), poi si toglie ciò che la tecnica esclude
+    const missing = G.values.some((v, i) => !v && !G.notes[i]);
+    snapshot();
+    const cand = a.cand.slice();
+    applyStep(G.values.slice(), cand, a.step);
+    for (let i = 0; i < 81; i++) if (!G.values[i]) G.notes[i] = cand[i];
+    feedback("note");
+    if (missing) toast("Note completate e aggiornate");
+    return afterMove();
+  }
 }
 
 function afterMove() {
@@ -377,6 +484,8 @@ function onKey(ev) {
   else if (k === "Backspace" || k === "Delete" || k === "0") erase();
   else if (k === "n" || k === "N") toggleNotes();
   else if ((ev.ctrlKey || ev.metaKey) && k === "z") undo();
+  else if ((ev.ctrlKey || ev.metaKey) && k === "y") redo();
+  else if (k === "Escape") closeHint();
   else if (k.startsWith("Arrow")) {
     const i = sel < 0 ? 40 : sel;
     const r = ROW[i], c = COL[i];
@@ -396,7 +505,8 @@ function render() {
   const S = settings;
   const v = G.values;
   const digitMode = S.inputMode === "cifra";
-  const focusVal = digitMode ? activeDigit || (sel >= 0 ? v[sel] : 0) : sel >= 0 ? v[sel] : 0;
+  const M = hint_ ? hint_.data.levels[hint_.level].marks : null; // segni dell'aiuto aperto
+  const focusVal = M ? 0 : digitMode ? activeDigit || (sel >= 0 ? v[sel] : 0) : sel >= 0 ? v[sel] : 0;
 
   // Cifre da segnare in rosso, secondo l'impostazione "Cifre sbagliate"
   const bad = new Uint8Array(81);
@@ -414,22 +524,29 @@ function render() {
     const cls = c.classList;
     cls.toggle("given", given);
     cls.toggle("user", !given && !!v[i]);
-    cls.toggle("sel", i === sel);
+    cls.toggle("sel", !M && i === sel);
     cls.toggle("same", S.hlSame && i !== sel && !!focusVal && v[i] === focusVal);
-    cls.toggle("area", S.hlArea && sel >= 0 && i !== sel && (ROW[i] === ROW[sel] || COL[i] === COL[sel] || BOX[i] === BOX[sel]));
+    cls.toggle("area", !M && S.hlArea && sel >= 0 && i !== sel && (ROW[i] === ROW[sel] || COL[i] === COL[sel] || BOX[i] === BOX[sel]));
     cls.toggle("conflict", !!bad[i]);
+    cls.toggle("h-area", !!M && M.area.has(i));
+    cls.toggle("h-focus", !!M && M.focus.has(i));
+    cls.toggle("h-cause", !!M && M.cause.has(i));
+    cls.toggle("h-elim", !!M && M.elim.has(i));
 
     const hlNote = S.hlNotes ? focusVal : 0;
-    const key = v[i] ? `v${v[i]}` : `n${G.notes[i]}:${hlNote}`;
+    const nm = M && !v[i] ? M.notes.get(i) : null; // note mostrate dall'aiuto (anche se non scritte)
+    const noteMask = nm ? nm.show : G.notes[i];
+    const key = v[i] ? `v${v[i]}` : nm ? `h${nm.show}:${nm.hl}:${nm.x}` : `n${G.notes[i]}:${hlNote}`;
     if (c.dataset.key === key) continue;
     c.dataset.key = key;
     if (v[i]) {
       c.textContent = v[i];
-    } else if (G.notes[i]) {
+    } else if (noteMask) {
       let h = '<div class="notes">';
       for (let d = 1; d <= 9; d++) {
-        const on = G.notes[i] & (1 << d);
-        h += `<span${on && d === hlNote ? ' class="hl"' : ""}>${on ? d : ""}</span>`;
+        const bit = 1 << d, on = noteMask & bit;
+        const k = !on ? "" : nm ? (nm.x & bit ? "x" : nm.hl & bit ? "hl" : "") : d === hlNote ? "hl" : "";
+        h += `<span${k ? ` class="${k}"` : ""}>${on ? d : ""}</span>`;
       }
       c.innerHTML = h + "</div>";
     } else {
@@ -452,8 +569,11 @@ function render() {
   el.notesBtn.classList.toggle("on", noteMode);
   el.notesBtn.querySelector(".badge").textContent = noteMode ? "SÌ" : "NO";
   el.undoBtn.disabled = !G.history.length;
+  el.redoBtn.disabled = !G.future.length;
   el.hintBtn.hidden = !S.showHint;
-  el.tools.style.gridTemplateColumns = `repeat(${S.showHint ? 4 : 3}, 1fr)`;
+  el.redoBtn.hidden = !S.showRedo;
+  el.fillBtn.hidden = !S.showFill;
+  el.tools.style.gridTemplateColumns = `repeat(${3 + S.showHint + S.showRedo + S.showFill}, 1fr)`;
   el.timer.classList.toggle("hidden", !S.showTimer);
   el.timer.textContent = formatTime(G.elapsed);
 }
@@ -470,6 +590,7 @@ export function newGameState(result) {
     elapsed: 0,
     hints: 0,
     history: [],
+    future: [],
     done: false,
     started: Date.now(),
   };
