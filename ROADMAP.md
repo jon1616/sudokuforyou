@@ -13,13 +13,17 @@ Ogni idea si segna qui prima di farla e si spunta quando è online.
 - [x] Installabile (PWA), funziona offline, icona
 - [x] Pubblicazione su GitHub Pages: https://jon1616.github.io/sudokuforyou/
 
-## v0.2 — Personalizzazione
-- [ ] Schermata Impostazioni
-- [ ] Temi di colore (più palette, compreso il colore preferito di lei), chiaro/scuro/automatico
-- [ ] Aiuti accendibili uno per uno: evidenziazioni, errori (subito / solo conflitti / mai), note automatiche, pulizia note
-- [ ] Timer visibile o nascosto
-- [ ] Modo di inserimento: prima la casella o prima la cifra
-- [ ] Dimensione delle cifre, vibrazione leggera al tocco, suoni (spenti di base)
+## v0.2 — Personalizzazione ✅
+- [x] Schermata Impostazioni (dal menu e durante la partita, con anteprima che cambia subito)
+- [x] Colore: 12 colori pronti + colore libero; tutto il tema si calcola da quel colore
+- [x] Tema come il telefono / chiaro / scuro; sfondo carta / neutro / colorato
+- [x] Carattere rotondo / semplice / classico; cifre piccole / medie / grandi
+- [x] Cifre sbagliate: non segnalare / solo doppioni / subito
+- [x] Evidenziazioni accendibili (area, cifre uguali, note uguali), pulizia automatica note, pulsante Aiuto
+- [x] Modo di inserimento: prima la casella o prima la cifra
+- [x] Tempo visibile o nascosto, numerini sul tastierino, cifre completate sbiadite, animazioni
+- [x] Vibrazione leggera e suoni delicati (spenti di base)
+- [x] Nome per il saluto in apertura
 
 ## v0.3 — Aiuti che insegnano
 - [ ] Suggerimento a tre livelli: "guarda qui" → "tecnica da usare" → spiegazione con le caselle evidenziate
@@ -29,7 +33,7 @@ Ogni idea si segna qui prima di farla e si spunta quando è online.
 ## v0.4 — Ogni giorno
 - [ ] Sudoku del giorno (stesso schema per data) e serie di giorni consecutivi
 - [ ] Statistiche più ricche: tempi medi, storico, tecniche usate
-- [ ] Un tocco personale: nome all'apertura, dedica
+- [ ] Un tocco personale: dedica
 
 ## Più avanti (da decidere insieme)
 - [ ] Griglie 4×4 e 6×6

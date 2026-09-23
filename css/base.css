@@ -63,17 +63,19 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html, body {
   margin: 0;
   height: 100%;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Fredoka", system-ui, sans-serif;
+  font-family: var(--font, "Fredoka", system-ui, sans-serif);
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
   overscroll-behavior: none;
+  font-variant-numeric: lining-nums tabular-nums; /* cifre tutte alte uguali, anche col carattere Classico */
 }
 
 #app {

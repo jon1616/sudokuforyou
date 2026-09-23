@@ -17,6 +17,8 @@ Online: https://jon1616.github.io/sudokuforyou/ — Repo: jon1616/sudokuforyou (
 1. **Rilassante prima di tutto**: niente vite, niente penalità, niente fretta. Il timer c'è ma non mette pressione; gli errori si segnalano con garbo.
 2. **Ogni schema ha una sola soluzione** e la difficoltà è misurata dal risolutore "umano" (`grade()` in `js/sudoku.js`), non dal numero di cifre.
 3. **Ogni scelta di gioco diventa, prima o poi, un'impostazione**: il gioco deve essere personalizzabile. Valori predefiniti gentili.
+   Nuova impostazione = voce in `DEFAULTS` + riga nella schermata (`sheetHTML`) + uso in `render()` + (se si vede) anteprima.
+   Colori sempre dalle variabili CSS (`--accent`, `--user`, …), mai scritti a mano: così seguono il tema.
 4. **La partita non si perde mai**: salvataggio a ogni mossa (`localStorage`, chiave `sfy.game`), pausa automatica quando l'app va in secondo piano, il tasto indietro di Android torna al menu senza perdere nulla.
 5. **Asset e librerie solo con licenza libera e salvati nel progetto** (font in `fonts/`, mai da CDN), sempre elencati in PRECACHE. Icone e grafica disegnate da codice (SVG in `js/icons.js`, PNG da `tools/make-icons.mjs`).
 6. **Mai credenziali** in chat, file o commit.
@@ -30,9 +32,13 @@ index.html · manifest.webmanifest · sw.js (service worker: PRECACHE + CACHE_VE
 
 css/base.css     carattere (Fredoka), colori (chiaro/scuro), schermata iniziale, finestre, avvisi
 css/game.css     griglia, strumenti, tastierino, animazioni (lampo di unità completata, onda finale)
+css/settings.css schermata Impostazioni (interruttori, scelte, colori, anteprima)
 
 js/app.js        schermata iniziale, passaggio alla partita, history (tasto indietro), service worker
 js/game.js       partita: selezione, cifre, note, annulla, cancella, aiuto, timer, pausa, vittoria, statistiche
+js/settings.js   DEFAULTS, `settings` (sempre aggiornato), setSetting(), onSettingsChange(), tema calcolato da UN colore
+                 (themeVars: chiaro/scuro × sfondo carta/neutro/colorato), schermata con anteprima
+js/audio.js      feedback("place"|"note"|"erase"|"unit"|"win"|"hint"): suoni sintetizzati + vibrazione, secondo le impostazioni
 js/sudoku.js     motore puro (usabile da Node): risolutore, candidati, tecniche umane, grade(), generate(), LEVELS
 js/ui.js         modal(), toast(), formatTime()
 js/icons.js      icone SVG

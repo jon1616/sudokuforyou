@@ -17,6 +17,8 @@ Gli aggiornamenti arrivano da soli: basta chiudere e riaprire.
 - **Annulla** torna indietro di una mossa, **Cancella** svuota la casella.
 - **Aiuto**: se c'è una cifra sbagliata la indica; altrimenti svela la casella più facile da trovare.
 - Il numerino sotto ogni cifra del tastierino dice quante ne mancano.
+- **Impostazioni** (rotella ⚙): colore, tema chiaro/scuro, sfondo, carattere, grandezza delle cifre,
+  quali aiuti usare, "prima la casella" o "prima la cifra", tempo, suoni e vibrazione, il tuo nome.
 - La partita si salva da sola: si può chiudere l'app e riprendere con **Continua**.
 
 ## Per chi lavora sul codice

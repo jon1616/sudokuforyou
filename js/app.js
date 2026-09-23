@@ -9,6 +9,9 @@ import * as store from "./storage.js";
 import { modal, formatTime } from "./ui.js";
 import { icons } from "./icons.js";
 import { VERSION } from "./version.js";
+import { settings, applyTheme, openSettings, isSettingsOpen, closeSettings } from "./settings.js";
+
+applyTheme();
 
 const app = document.getElementById("app");
 let screen = "home";
@@ -40,9 +43,12 @@ function showHome() {
   const savedLevel = saved && LEVELS.find((l) => l.id === saved.level);
   app.innerHTML = `
     <div class="home">
+      <div class="home-top">
+        <button class="round-btn" data-act="settings" aria-label="Impostazioni">${icons.gear}</button>
+      </div>
       <div class="home-title">
         <h1>Sudoku<br><span>for you</span></h1>
-        <p>Uno schema alla volta, con calma</p>
+        <p>${settings.name ? `Ciao, ${escapeHtml(settings.name)}!` : "Uno schema alla volta, con calma"}</p>
       </div>
       ${saved ? `
         <button class="card card-continue" data-act="continue">
@@ -61,6 +67,7 @@ function showHome() {
     const btn = ev.target.closest("button");
     if (!btn) return;
     if (btn.dataset.act === "continue") return openGame(hasSavedGame());
+    if (btn.dataset.act === "settings") return openSettings(() => { if (screen === "home") showHome(); });
     if (btn.dataset.level != null) {
       const li = Number(btn.dataset.level);
       if (hasSavedGame()) {
@@ -100,7 +107,11 @@ function openGame(game) {
   });
 }
 
+const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
 window.addEventListener("popstate", () => {
+  // Indietro: prima si chiudono le impostazioni, poi si esce dalla partita
+  if (isSettingsOpen()) return closeSettings();
   document.querySelectorAll(".modal-back").forEach((m) => m.remove());
   if (screen === "game") showHome();
 });
