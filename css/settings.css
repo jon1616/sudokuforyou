@@ -187,3 +187,25 @@
 
 /* Rotella nella schermata iniziale */
 .home-top { display: flex; justify-content: flex-end; margin-bottom: -40px; }
+
+/* Condividi il gioco */
+.share {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.share-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 4px 10px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.share-btn .icon { color: var(--accent); width: 26px; height: 26px; }
+.share-btn:active { filter: brightness(0.95); }

@@ -21,6 +21,7 @@ Gli aggiornamenti arrivano da soli: basta chiudere e riaprire.
 - Il numerino sotto ogni cifra del tastierino dice quante ne mancano.
 - **Impostazioni** (rotella ⚙): colore, tema chiaro/scuro, sfondo, carattere, grandezza delle cifre,
   quali aiuti usare, "prima la casella" o "prima la cifra", tempo, suoni e vibrazione, il tuo nome.
+  In fondo, **Condividi il gioco**: manda il link via WhatsApp o email con il messaggio già pronto.
 - La partita si salva da sola: si può chiudere l'app e riprendere con **Continua**.
 
 ## Per chi lavora sul codice

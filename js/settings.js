@@ -9,6 +9,14 @@
 
 import * as store from "./storage.js";
 import { icons } from "./icons.js";
+import { toast } from "./ui.js";
+
+// Indirizzo pubblico del gioco (quello da condividere, anche quando si prova in locale)
+export const GAME_URL = "https://jon1616.github.io/sudokuforyou/";
+const SHARE_SUBJECT = "Un sudoku rilassante per te";
+const SHARE_TEXT =
+  "Ti consiglio questo sudoku rilassante: si gioca dal telefono, anche senza connessione.\n" +
+  "Aprilo con Chrome e dal menu ⋮ scegli «Aggiungi a schermata Home»: diventa un'app.";
 
 export const DEFAULTS = {
   // Aspetto
@@ -272,6 +280,16 @@ function sheetHTML() {
         ${block("Il tuo nome", `<input class="text" type="text" maxlength="20" placeholder="Per un saluto all'apertura" value="${settings.name.replace(/"/g, "&quot;")}" data-name>`)}
       </div>
 
+      <div class="section-label">Condividi il gioco</div>
+      <div class="group">
+        ${block("Manda il link a chi vuoi", `
+          <div class="share">
+            <a class="share-btn" href="https://wa.me/?text=${encodeURIComponent(`${SHARE_TEXT}\n${GAME_URL}`)}" target="_blank" rel="noopener">${icons.chat}WhatsApp</a>
+            <a class="share-btn" href="mailto:?subject=${encodeURIComponent(SHARE_SUBJECT)}&body=${encodeURIComponent(`${SHARE_TEXT}\n\n${GAME_URL}`)}">${icons.mail}Email</a>
+            <button class="share-btn" data-copy>${icons.link}Copia link</button>
+          </div>`, "Si apre WhatsApp o la posta con il messaggio già pronto")}
+      </div>
+
       <button class="btn reset" data-reset>Ripristina le impostazioni iniziali</button>
     </div>`;
 }
@@ -300,6 +318,12 @@ export function openSettings(onClose) {
     if (sw) { setSetting("color", sw.dataset.color); return refresh(); }
     const segBtn = t.closest(".seg button");
     if (segBtn) { setSetting(segBtn.parentElement.dataset.key, segBtn.dataset.val); return refresh(); }
+    if (t.closest("[data-copy]")) {
+      const done = () => toast("Link copiato");
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(GAME_URL).then(done, () => toast(GAME_URL));
+      else toast(GAME_URL);
+      return;
+    }
     if (t.closest("[data-reset]")) {
       for (const k of Object.keys(DEFAULTS)) if (k !== "name") settings[k] = DEFAULTS[k];
       setSetting("name", settings.name);

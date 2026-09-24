@@ -30,6 +30,7 @@ Ogni idea si segna qui prima di farla e si spunta quando è online.
 - [x] Spiegazioni per tutte le tecniche del motore (cifra obbligata, ultima possibilità, candidati bloccati, coppie/triplette, X-Wing, XY-Wing)
 - [x] Impostazione: aiuto "un passo alla volta" o "svela subito"
 - [x] Pulsante Riempi note, pulsante Ripeti (entrambi nascondibili)
+- [x] v0.3.1: Condividi il gioco nelle Impostazioni (WhatsApp, Email con messaggio pronto, Copia link)
 
 ## v0.4 — Ogni giorno
 - [ ] Sudoku del giorno (stesso schema per data) e serie di giorni consecutivi
